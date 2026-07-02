@@ -1,0 +1,112 @@
+{
+  "pages": [
+    {
+      "path": "pages/login/login",
+      "style": {
+        "navigationBarTitleText": "登录",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/batch/batch",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#f5f7fb"
+      }
+    },
+    {
+      "path": "pages/manual/manual",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#f5f7fb"
+      }
+    },
+    {
+      "path": "pages/mine/mine",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#f5f7fb"
+      }
+    },
+    {
+      "path": "pages/pricing/pricing",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#f5f7fb"
+      }
+    },
+    {
+      "path": "pages/orders/orders",
+      "style": {
+        "navigationStyle": "custom",
+        "backgroundColor": "#f5f7fb"
+      }
+    },
+	{
+	  "path": "pages/invoice/invoice",
+	  "style": {
+	    "navigationStyle": "custom"
+	  }
+	},
+	{
+	  "path": "pages/history/history",
+	  "style": {
+	    "navigationBarTitleText": "历史对话",
+	    "navigationBarBackgroundColor": "#ffffff",
+	    "navigationBarTextStyle": "black",
+	    "backgroundColor": "#f5f7fb"
+	  }
+	},
+	{
+	  "path": "pages/admin/admin",
+	  "style": {
+	    "navigationStyle": "custom",
+	    "backgroundColor": "#f5f7fb"
+	  }
+	},
+	{
+	  "path": "pages/members/members",
+	  "style": {
+	    "navigationStyle": "custom",
+	    "backgroundColor": "#f5f7fb"
+	  }
+	},
+	{
+	  "path": "pages/service/service",
+	  "style": {
+	    "navigationStyle": "custom",
+	    "backgroundColor": "#f5f7fb"
+	  }
+	}
+  ],
+  "tabBar": {
+    "color": "#64748b",
+    "selectedColor": "#2563eb",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "AI咨询"
+      },
+      {
+        "pagePath": "pages/batch/batch",
+        "text": "批量AI咨询"
+      },
+      {
+        "pagePath": "pages/manual/manual",
+        "text": "人工咨询"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "我的"
+      }
+    ]
+  }
+}
