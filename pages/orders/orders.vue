@@ -114,7 +114,13 @@
             <view class="actions">
               <view
                 class="secondary-btn"
-                @tap="sendInvoiceEmail(invoice)"
+                @tap="openInvoiceProgress(invoice)"
+              >
+                查看进度
+              </view>
+              <view
+                class="secondary-btn"
+                @tap="openSendInvoiceEmail(invoice)"
               >
                 发送发票至邮箱
               </view>
@@ -177,7 +183,70 @@
         </view>
       </block>
 
-      <block v-else>
+      <block v-else-if="pageMode === 'invoiceProgress'">
+        <view class="order-card">
+          <view class="card-title">发票进度</view>
+          <view class="card-meta">{{ selectedInvoice.orderTitle }}｜{{ selectedInvoice.amount }}</view>
+
+          <view class="progress-list">
+            <view
+              v-for="step in invoiceProgressSteps"
+              :key="step.name"
+              class="progress-step"
+              :class="step.status"
+            >
+              <view class="progress-dot">{{ step.status === 'done' ? '✓' : step.no }}</view>
+              <view class="progress-main">
+                <view class="progress-name">{{ step.name }}</view>
+                <view class="progress-desc">{{ step.desc }}</view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="order-card">
+          <view class="card-title">开票信息</view>
+          <view class="info-row">
+            <text>发票抬头</text>
+            <text>{{ selectedInvoice.title }}</text>
+          </view>
+          <view class="info-row">
+            <text>发票类型</text>
+            <text>{{ selectedInvoice.type }}</text>
+          </view>
+          <view class="info-row">
+            <text>接收邮箱</text>
+            <text>{{ selectedInvoice.email }}</text>
+          </view>
+          <view class="info-row">
+            <text>当前状态</text>
+            <text>{{ selectedInvoice.status }}</text>
+          </view>
+        </view>
+      </block>
+
+      <block v-else-if="pageMode === 'sendEmail'">
+        <view class="order-card">
+          <view class="card-title">发送发票至邮箱</view>
+          <view class="card-meta">请确认接收邮箱，系统将发送电子发票文件。</view>
+
+          <view class="form-item">
+            <view class="label">接收邮箱</view>
+            <input class="input" v-model="emailForm.email" placeholder="请输入接收邮箱地址" />
+          </view>
+          <view class="form-item">
+            <view class="label">再次确认邮箱</view>
+            <input class="input" v-model="emailForm.confirmEmail" placeholder="请再次输入邮箱地址" />
+          </view>
+
+          <view class="primary-btn submit" @tap="submitSendInvoiceEmail">确认发送</view>
+          <view v-if="emailSent" class="success-card">
+            发送申请已提交，电子发票将发送至 {{ emailForm.email }}。
+          </view>
+        </view>
+      </block>
+
+      <block v-else-if="pageMode === 'applyInvoice'">
         <view class="order-card">
           <view class="card-title">申请开票</view>
           <view class="card-meta">请选择需要开票的订单并填写发票信息。</view>
@@ -226,13 +295,17 @@
               <view class="label">注册地址</view>
               <input class="input" v-model="invoiceForm.address" placeholder="请输入注册地址" />
             </view>
+            <view class="form-item">
+              <view class="label">企业注册电话</view>
+              <input class="input" v-model="invoiceForm.phone" placeholder="请输入企业注册电话" />
+            </view>
           </block>
 
           <view class="primary-btn submit" @tap="submitInvoice">提交发票申请</view>
         </view>
 
         <view class="tip-card">
-          电子普通发票一般1-3个工作日内开具并发送至邮箱；增值税专用发票需额外审核。当前为前端Mock流程。
+          电子普通发票一般1-3个工作日内开具并发送至邮箱；增值税专用发票需额外审核。
         </view>
       </block>
     </scroll-view>
@@ -259,8 +332,17 @@ export default {
       orders: getMockOrders(),
       invoices: getMockInvoices(),
       selectedOrder: null,
+      selectedInvoice: null,
+      emailForm: {
+        email: '',
+        confirmEmail: ''
+      },
+      emailSent: false,
       invoiceTypes: ['电子普通发票', '增值税专用发票'],
-      invoiceForm: getMockInvoiceForm()
+      invoiceForm: {
+        ...getMockInvoiceForm(),
+        phone: ''
+      }
     }
   },
 
@@ -272,11 +354,48 @@ export default {
       if (this.pageMode === 'applyInvoice') {
         return '申请开票'
       }
+      if (this.pageMode === 'invoiceProgress') {
+        return '发票进度'
+      }
+      if (this.pageMode === 'sendEmail') {
+        return '发送发票'
+      }
       return '订单与发票'
     },
 
     invoiceTypeIndex() {
       return this.invoiceTypes.indexOf(this.invoiceForm.type)
+    },
+
+    invoiceProgressSteps() {
+      const status = this.selectedInvoice ? this.selectedInvoice.status : ''
+      const opened = status === '已开票'
+      return [
+        {
+          no: 1,
+          name: '提交申请',
+          desc: '开票信息已提交，等待系统校验。',
+          status: 'done'
+        },
+        {
+          no: 2,
+          name: '财务审核',
+          desc: opened ? '发票信息已审核通过。' : '正在核对订单、抬头和税号信息。',
+          status: opened ? 'done' : 'active'
+        },
+        {
+          no: 3,
+          name: '发票开具',
+          desc: opened ? '电子发票已开具。' : '审核通过后进入开票环节。',
+          status: opened ? 'done' : 'pending'
+        },
+        {
+          no: 4,
+          name: '发送邮箱',
+          desc: opened ? '可重新发送至指定邮箱。' : '开票后可发送到接收邮箱。',
+          status: opened ? 'active' : 'pending'
+        }
+      ]
     }
   },
 
@@ -316,8 +435,26 @@ export default {
     },
 
     openApplyInvoice(order) {
-      this.invoiceForm = getMockInvoiceForm(`${order.title}（${order.amount}）`)
+      this.invoiceForm = {
+        ...getMockInvoiceForm(`${order.title}（${order.amount}）`),
+        phone: ''
+      }
       this.pageMode = 'applyInvoice'
+    },
+
+    openInvoiceProgress(invoice) {
+      this.selectedInvoice = invoice
+      this.pageMode = 'invoiceProgress'
+    },
+
+    openSendInvoiceEmail(invoice) {
+      this.selectedInvoice = invoice
+      this.emailForm = {
+        email: invoice.email,
+        confirmEmail: ''
+      }
+      this.emailSent = false
+      this.pageMode = 'sendEmail'
     },
 
     changeInvoiceType(event) {
@@ -341,7 +478,7 @@ export default {
       }
 
       if (this.invoiceForm.type === '增值税专用发票') {
-        if (!this.invoiceForm.bankName.trim() || !this.invoiceForm.bankAccount.trim() || !this.invoiceForm.address.trim()) {
+        if (!this.invoiceForm.bankName.trim() || !this.invoiceForm.bankAccount.trim() || !this.invoiceForm.address.trim() || !String(this.invoiceForm.phone || '').trim()) {
           this.showToast('请补充专票信息')
           return
         }
@@ -366,17 +503,19 @@ export default {
       this.showToast('发票申请已提交')
     },
 
-    sendInvoiceEmail(invoice) {
-      uni.showModal({
-        title: '发送发票',
-        content: `电子发票将发送至：${invoice.email}`,
-        confirmText: '发送',
-        success: (res) => {
-          if (res.confirm) {
-            this.showToast('发票已发送至邮箱')
-          }
-        }
-      })
+    submitSendInvoiceEmail() {
+      if (!this.emailForm.email.trim()) {
+        this.showToast('请输入接收邮箱')
+        return
+      }
+
+      if (this.emailForm.email.trim() !== this.emailForm.confirmEmail.trim()) {
+        this.showToast('两次输入的邮箱不一致')
+        return
+      }
+
+      this.emailSent = true
+      this.showToast('发票已发送至邮箱')
     },
 
     showToast(title) {
@@ -435,7 +574,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 24rpx;
+  padding: 24rpx 24rpx calc(24rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 
@@ -464,7 +603,8 @@ export default {
 }
 
 .order-card,
-.tip-card {
+.tip-card,
+.success-card {
   margin-bottom: 24rpx;
   padding: 30rpx;
   border-radius: 30rpx;
@@ -604,5 +744,72 @@ export default {
   background: #fff7ed;
   font-size: 24rpx;
   line-height: 38rpx;
+}
+
+.success-card {
+  margin-top: 22rpx;
+  margin-bottom: 0;
+  background: #ecfdf5;
+  border-color: #bbf7d0;
+  color: #15803d;
+  font-size: 24rpx;
+  line-height: 38rpx;
+  font-weight: 800;
+}
+
+.progress-list {
+  margin-top: 24rpx;
+}
+
+.progress-step {
+  display: flex;
+  gap: 18rpx;
+  padding-bottom: 26rpx;
+  color: #94a3b8;
+}
+
+.progress-step:last-child {
+  padding-bottom: 0;
+}
+
+.progress-dot {
+  width: 52rpx;
+  height: 52rpx;
+  line-height: 52rpx;
+  border-radius: 999rpx;
+  background: #f1f5f9;
+  color: #64748b;
+  text-align: center;
+  font-size: 24rpx;
+  font-weight: 900;
+  flex: 0 0 52rpx;
+}
+
+.progress-step.done .progress-dot {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.progress-step.active .progress-dot {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.progress-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.progress-name {
+  color: #111827;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+
+.progress-desc {
+  margin-top: 8rpx;
+  color: #64748b;
+  font-size: 24rpx;
+  line-height: 36rpx;
 }
 </style>

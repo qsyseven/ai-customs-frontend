@@ -15,16 +15,13 @@
 
         <view class="header-title">AI咨询</view>
 
-        <!-- 批量AI咨询入口先隐藏，避免挤压微信右上角胶囊按钮；后续可改为二级入口或更多菜单。 -->
-        <!--
         <view
           class="batch-entry"
           :style="{ right: navMetrics.capsuleSafeRight + 'px' }"
           @tap="goBatch"
         >
-          批量AI咨询
+          批量
         </view>
-        -->
       </view>
     </view>
 
@@ -270,14 +267,14 @@
       </view>
 
       <view class="example-list">
-        <view class="example-chip" @tap="useExample('女式针织上衣，棉95%、氨纶5%，日常穿着用，零售包装。')">
-          女式针织上衣
+        <view class="example-chip" @tap="useExample('商品是塑料水杯，PP材质，容量500ml，用于日常饮水。')">
+          塑料水杯
         </view>
         <view class="example-chip" @tap="useExample('不锈钢保温杯，容量500ml，用于盛装饮品，带塑料杯盖。')">
           不锈钢保温杯
         </view>
-        <view class="example-chip" @tap="useExample('蓝牙无线耳机，内置锂电池，用于手机音频播放。')">
-          蓝牙无线耳机
+        <view class="example-chip" @tap="useExample('女式针织上衣，棉95%、氨纶5%，日常穿着用，零售包装。')">
+          女式针织上衣
         </view>
       </view>
 
@@ -311,7 +308,7 @@ export default {
       messageId: 1,
       stage: 'input',
       scrollTarget: 'chat-bottom',
-      inputText: '不锈钢保温杯，容量500ml，用于盛装饮品，带塑料杯盖。',
+      inputText: '商品是塑料水杯，PP材质，容量500ml，用于日常饮水。',
       selectedFileName: '',
       selectedFileLabel: '',
       attachPanelOpen: false,
@@ -376,7 +373,7 @@ export default {
     initConversation() {
       this.messages = []
       this.stage = 'input'
-      this.inputText = '不锈钢保温杯，容量500ml，用于盛装饮品，带塑料杯盖。'
+      this.inputText = '商品是塑料水杯，PP材质，容量500ml，用于日常饮水。'
       this.clearFile()
       this.addAiText(getAiWelcomeMessage())
     },
@@ -434,7 +431,7 @@ export default {
       this.inputText = ''
 
       if (this.selectedFileName) {
-        this.addAiText(`已收到${this.selectedFileLabel}附件：${this.selectedFileName}。当前阶段先做前端文件占位展示，后续由后端和算法接入真实解析。`)
+        this.addAiText(`已收到${this.selectedFileLabel}附件：${this.selectedFileName}。系统会结合附件内容和商品描述一起整理归类线索。`)
       }
 
       if (this.stage === 'input' || this.stage === 'done') {

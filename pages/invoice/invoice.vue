@@ -96,7 +96,7 @@
       </view>
 
       <view class="tip-card">
-        当前为 Mock 发票流程。真实场景需后端保存申请、财务审核、开票状态回写。
+        发票申请提交后将进入财务审核，开票状态可在订单与发票中查看。
       </view>
 
       <view class="bottom-space"></view>

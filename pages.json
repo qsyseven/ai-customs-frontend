@@ -64,6 +64,13 @@
 	  }
 	},
 	{
+	  "path": "pages/invite/invite",
+	  "style": {
+	    "navigationStyle": "custom",
+	    "backgroundColor": "#f5f7fb"
+	  }
+	},
+	{
 	  "path": "pages/admin/admin",
 	  "style": {
 	    "navigationStyle": "custom",
@@ -93,19 +100,27 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "AI咨询"
+        "text": "AI咨询",
+        "iconPath": "static/tab/ai-normal.png",
+        "selectedIconPath": "static/tab/ai-active.png"
       },
       {
         "pagePath": "pages/batch/batch",
-        "text": "批量AI咨询"
+        "text": "批量AI咨询",
+        "iconPath": "static/tab/batch-normal.png",
+        "selectedIconPath": "static/tab/batch-active.png"
       },
       {
         "pagePath": "pages/manual/manual",
-        "text": "人工咨询"
+        "text": "人工咨询",
+        "iconPath": "static/tab/manual-normal.png",
+        "selectedIconPath": "static/tab/manual-active.png"
       },
       {
         "pagePath": "pages/mine/mine",
-        "text": "我的"
+        "text": "我的",
+        "iconPath": "static/tab/mine-normal.png",
+        "selectedIconPath": "static/tab/mine-active.png"
       }
     ]
   }

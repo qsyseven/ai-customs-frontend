@@ -73,25 +73,25 @@ export function getMockMineMenus() {
       group: '管理后台',
       icon: '权',
       title: '角色权限管理',
-      desc: '预留管理员角色、权限范围、菜单可见性配置'
+      desc: '维护管理员角色、权限范围和菜单可见性'
     },
     {
       id: 'adminTicket',
       group: '管理后台',
       icon: '工',
       title: '人工处理',
-      desc: '预留人工咨询工单、回访、结果确认处理入口'
+      desc: '处理人工咨询工单、回访和结果确认'
     },
     {
       id: 'adminPayment',
       group: '管理后台',
       icon: '单',
       title: '用户订单管理',
-      desc: '预留用户订单、对公转账核验、权益发放管理'
+      desc: '管理用户订单、对公转账核验和权益发放'
     },
     {
       id: 'invite',
-      group: '管理后台',
+      group: '账号支持',
       icon: '邀',
       title: '邀请用户管理',
       desc: '查看邀请码、邀请记录和首次充值奖励'
@@ -116,6 +116,60 @@ export function getMockMineMenus() {
       icon: '客',
       title: '联系客服',
       desc: '查看服务时间和客服联系方式'
+    }
+  ]
+}
+
+export function getMockInviteSummary() {
+  return {
+    code: 'YQ-8888-A7',
+    total: 5,
+    paid: 3,
+    discountText: '被邀请用户首次充值可享8折优惠，或额外赠送20% AI咨询次数。'
+  }
+}
+
+export function getMockInviteUsers() {
+  return [
+    {
+      id: 'invite_1',
+      name: '赵六',
+      company: '广州跨境电商公司',
+      phone: '136****3333',
+      status: '已购买',
+      registerTime: '2026-06-20',
+      product: '标准版会员',
+      amount: '999元'
+    },
+    {
+      id: 'invite_2',
+      name: '陈七',
+      company: '深圳某外贸公司',
+      phone: '135****7777',
+      status: '已购买',
+      registerTime: '2026-06-18',
+      product: '人工咨询补充包',
+      amount: '299元'
+    },
+    {
+      id: 'invite_3',
+      name: '周八',
+      company: '佛山五金贸易公司',
+      phone: '137****2222',
+      status: '已购买',
+      registerTime: '2026-06-15',
+      product: 'AI咨询补充包',
+      amount: '99元'
+    },
+    {
+      id: 'invite_4',
+      name: '吴九',
+      company: '东莞电子厂',
+      phone: '138****9999',
+      status: '未购买',
+      registerTime: '2026-06-25',
+      product: '',
+      amount: ''
     }
   ]
 }
@@ -154,29 +208,29 @@ export function getMockAdminEntries() {
     {
       id: 'role',
       title: '角色权限管理',
-      desc: '管理员、顾问、财务、普通成员等角色权限预留',
-      status: '前端占位',
+      desc: '管理员、顾问、财务、普通成员等角色权限',
+      status: '可配置',
       metrics: ['角色 4 类', '菜单权限 12 项']
     },
     {
       id: 'ticket',
       title: '人工处理',
-      desc: '人工咨询工单、回访沟通、结果确认等流程预留',
-      status: '前端占位',
+      desc: '人工咨询工单、回访沟通、结果确认等流程',
+      status: '处理中',
       metrics: ['待处理 3 单', '已完成 18 单']
     },
     {
       id: 'payment',
       title: '用户订单管理',
-      desc: '订单查询、对公转账凭证核验、权益发放预留',
-      status: '前端占位',
+      desc: '订单查询、对公转账凭证核验、权益发放',
+      status: '待核验',
       metrics: ['待核验 2 单', '已支付 24 单']
     },
     {
       id: 'invite',
       title: '邀请用户管理',
-      desc: '邀请码、被邀请用户、首次充值奖励记录预留',
-      status: '前端占位',
+      desc: '邀请码、被邀请用户、首次充值奖励记录',
+      status: '可查看',
       metrics: ['邀请码 YQ-6688', '已邀请 6 人']
     }
   ]

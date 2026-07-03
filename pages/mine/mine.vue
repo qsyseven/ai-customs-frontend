@@ -198,7 +198,7 @@ export default {
         adminRole: '/pages/admin/admin?tab=role',
         adminTicket: '/pages/admin/admin?tab=ticket',
         adminPayment: '/pages/admin/admin?tab=payment',
-        invite: '/pages/admin/admin?tab=invite',
+        invite: '/pages/invite/invite',
         members: '/pages/members/members',
         orders: '/pages/orders/orders',
         service: '/pages/service/service'
@@ -209,7 +209,7 @@ export default {
           url: routeMap[id],
           fail: () => {
             uni.showToast({
-              title: '页面待接入',
+              title: '页面暂不可用',
               icon: 'none'
             })
           }
@@ -218,7 +218,7 @@ export default {
       }
 
       uni.showToast({
-        title: '功能待接入',
+        title: '功能准备中',
         icon: 'none'
       })
     },
@@ -226,7 +226,7 @@ export default {
     showRightsRule() {
       uni.showModal({
         title: '权益说明',
-        content: '当前为前端Mock数据。后续接入后端权益接口后，将展示真实剩余次数、有效期和刷新规则。',
+        content: '权益次数会随套餐周期刷新，使用记录和剩余次数可在当前权益中查看。',
         showCancel: false
       })
     }

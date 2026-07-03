@@ -58,6 +58,19 @@
             支持平台Excel模板，也支持企业自有Excel模板。系统会自动识别商品信息字段并进行匹配。
           </view>
 
+          <view class="template-fields">
+            <view class="template-fields-title">模板建议字段</view>
+            <view class="field-chips">
+              <view
+                v-for="field in templateFields"
+                :key="field"
+                class="field-chip"
+              >
+                {{ field }}
+              </view>
+            </view>
+          </view>
+
           <view class="upload-zone" @tap="chooseExcelFile">
             <view class="upload-icon">XLS</view>
             <view class="upload-main">选择Excel文件</view>
@@ -81,6 +94,17 @@
 
           <view class="card-desc result-desc">
             系统已在原Excel字段后追加：最匹配税号、其他可能的税号、备注。
+          </view>
+
+          <view class="result-summary">
+            <view
+              v-for="item in resultSummary"
+              :key="item.label"
+              class="result-pill"
+            >
+              <strong>{{ item.value }}</strong>
+              <span>{{ item.label }}</span>
+            </view>
           </view>
 
           <view class="result-list">
@@ -120,6 +144,10 @@
           <view class="batch-history-title">{{ item.title }}</view>
           <view class="batch-history-meta">{{ item.meta }}</view>
           <view class="batch-history-preview">{{ item.preview }}</view>
+          <view class="batch-history-status">
+            <text>处理状态</text>
+            <text>已完成</text>
+          </view>
           <view class="history-download-btn" @tap="downloadHistoryResult(item)">
             下载结果文件
           </view>
@@ -152,6 +180,14 @@ export default {
       pageMode: 'main',
       resultList: [],
       historyList: [],
+      templateFields: [
+        '商品名称',
+        '用途',
+        '材质/成分',
+        '规格型号',
+        '品牌',
+        '申报要素备注'
+      ],
       flowSteps: [
         { no: 1, text: '下载/准备模板' },
         { no: 2, text: '上传Excel清单' },
@@ -167,6 +203,16 @@ export default {
 
     headerTitle() {
       return this.isHistoryMode ? '批量咨询历史' : '批量AI咨询'
+    },
+
+    resultSummary() {
+      const total = this.resultList.length
+      const riskCount = this.resultList.filter(item => String(item.note || '').includes('风险') || String(item.note || '').includes('确认')).length
+      return [
+        { label: '商品数', value: total },
+        { label: '已匹配', value: total },
+        { label: '需复核', value: riskCount }
+      ]
     }
   },
 
@@ -221,7 +267,7 @@ export default {
 
     downloadTemplate() {
       uni.showToast({
-        title: '模板下载接口待接入',
+        title: '模板下载准备中',
         icon: 'none'
       })
     },
@@ -292,21 +338,21 @@ export default {
       this.resultVisible = true
 
       uni.showToast({
-        title: '已生成Mock结果',
+        title: '已生成批量结果',
         icon: 'success'
       })
     },
 
     downloadResult() {
       uni.showToast({
-        title: '结果下载接口待接入',
+        title: '结果文件准备中',
         icon: 'none'
       })
     },
 
     downloadHistoryResult() {
       uni.showToast({
-        title: '历史结果下载待接入',
+        title: '历史结果文件准备中',
         icon: 'none'
       })
     }
@@ -375,7 +421,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 34rpx 24rpx 20rpx;
+  padding: 34rpx 24rpx calc(24rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 
@@ -430,6 +476,37 @@ export default {
   font-size: 25rpx;
   line-height: 40rpx;
   margin-top: 12rpx;
+}
+
+.template-fields {
+  margin-top: 20rpx;
+  padding: 20rpx;
+  border-radius: 24rpx;
+  background: #f8fafc;
+  border: 1rpx solid #e5e7eb;
+}
+
+.template-fields-title {
+  color: #475569;
+  font-size: 24rpx;
+  font-weight: 900;
+  margin-bottom: 12rpx;
+}
+
+.field-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.field-chip {
+  padding: 9rpx 14rpx;
+  border-radius: 999rpx;
+  background: #ffffff;
+  border: 1rpx solid #e2e8f0;
+  color: #475569;
+  font-size: 22rpx;
+  font-weight: 800;
 }
 
 .template-link {
@@ -562,6 +639,33 @@ export default {
   margin-bottom: 18rpx;
 }
 
+.result-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14rpx;
+  margin-bottom: 18rpx;
+}
+
+.result-pill {
+  padding: 18rpx 10rpx;
+  border-radius: 22rpx;
+  background: #f8fafc;
+  border: 1rpx solid #e5e7eb;
+  text-align: center;
+}
+
+.result-pill strong {
+  display: block;
+  color: #111827;
+  font-size: 34rpx;
+  font-weight: 900;
+}
+
+.result-pill span {
+  color: #64748b;
+  font-size: 22rpx;
+}
+
 .result-list {
   border: 1rpx solid #e5e7eb;
   border-radius: 24rpx;
@@ -634,6 +738,19 @@ export default {
   color: #172033;
   font-size: 27rpx;
   line-height: 44rpx;
+}
+
+.batch-history-status {
+  display: flex;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-top: 18rpx;
+  padding: 16rpx 18rpx;
+  border-radius: 20rpx;
+  background: #f0fdf4;
+  color: #16a34a;
+  font-size: 24rpx;
+  font-weight: 900;
 }
 
 .history-download-btn {

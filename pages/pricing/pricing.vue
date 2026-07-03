@@ -126,12 +126,48 @@
           <text>{{ selectedPlan.price }}</text>
         </view>
 
-        <view class="pay-box">
-          <view class="pay-title">对公转账预留区</view>
-          <view class="pay-desc">
-            后续接入后端支付/订单接口。当前页面仅展示流程位置：生成订单、上传转账凭证、后台核验到账、权益发放。
+        <view class="pay-methods">
+          <view
+            v-for="method in payMethods"
+            :key="method.value"
+            class="pay-method"
+            :class="{ active: selectedPayMethod === method.value }"
+            @tap="selectPayMethod(method.value)"
+          >
+            <view class="pay-method-title">{{ method.label }}</view>
+            <view class="pay-method-desc">{{ method.desc }}</view>
           </view>
-          <view class="voucher-btn" @tap="chooseVoucher">上传转账凭证</view>
+        </view>
+
+        <view v-if="selectedPayMethod === 'bank'" class="bank-info">
+          <view class="bank-title">对公转账信息</view>
+          <view class="bank-row">
+            <text>收款户名</text>
+            <text>某某科技有限公司</text>
+          </view>
+          <view class="bank-row">
+            <text>收款账号</text>
+            <text>1100 1234 5678 9012 345</text>
+          </view>
+          <view class="bank-row">
+            <text>开户银行</text>
+            <text>招商银行广州科技园支行</text>
+          </view>
+          <view class="voucher-btn" @tap="chooseVoucher">
+            {{ voucherName ? '重新上传转账凭证' : '上传转账凭证' }}
+          </view>
+          <view v-if="voucherName" class="voucher-tip">已选择凭证：{{ voucherName }}</view>
+        </view>
+
+        <view class="pay-action" @tap="handlePayAction">
+          {{ selectedPayMethod === 'bank' ? '提交凭证，等待核验' : '确认支付' }}
+        </view>
+
+        <view v-if="payStatus === 'success'" class="pay-success">
+          支付成功，权益已发放至当前账号。
+        </view>
+        <view v-if="payStatus === 'pending'" class="pay-pending">
+          凭证已提交，后台正在核验到账情况，核验通过后权益将自动发放。
         </view>
       </view>
 
@@ -163,7 +199,22 @@ export default {
       activeTab: 'member',
       memberPlans: getMockMemberPlans(),
       supplementPacks: getMockSupplementPacks(),
-      selectedPlan: null
+      selectedPlan: null,
+      selectedPayMethod: 'wechat',
+      voucherName: '',
+      payStatus: '',
+      payMethods: [
+        {
+          label: '微信支付',
+          value: 'wechat',
+          desc: '模拟在线支付，确认后立即发放权益'
+        },
+        {
+          label: '对公转账',
+          value: 'bank',
+          desc: '上传转账凭证，后台核验后发放权益'
+        }
+      ]
     }
   },
 
@@ -199,8 +250,11 @@ export default {
       }
 
       this.selectedPlan = plan
+      this.selectedPayMethod = 'wechat'
+      this.voucherName = ''
+      this.payStatus = ''
       uni.showToast({
-        title: '已生成Mock订单',
+        title: '已生成订单',
         icon: 'none'
       })
     },
@@ -208,28 +262,71 @@ export default {
     showPlanRule(plan) {
       uni.showModal({
         title: plan.name,
-        content: plan.disabled ? '新用户注册后自动获得，30天内有效。' : '当前为前端Mock权益说明，后续接入后端套餐配置接口。',
+        content: plan.disabled ? '新用户注册后自动获得，30天内有效。' : '权益以页面展示为准，实际开通后可在当前权益中查看剩余次数和有效期。',
         showCancel: false
       })
     },
 
+    selectPayMethod(method) {
+      this.selectedPayMethod = method
+      this.payStatus = ''
+    },
+
     chooseVoucher() {
+      if (!uni.chooseMessageFile) {
+        this.voucherName = '对公转账凭证.pdf'
+        uni.showToast({
+          title: '当前环境使用示例凭证',
+          icon: 'none'
+        })
+        return
+      }
+
       uni.chooseMessageFile({
         count: 1,
         type: 'file',
         extension: ['jpg', 'jpeg', 'png', 'pdf'],
-        success: () => {
+        success: (res) => {
+          const file = res.tempFiles && res.tempFiles[0]
+          this.voucherName = file ? file.name : '对公转账凭证.pdf'
           uni.showToast({
-            title: '凭证已选择，接口待接入',
+            title: '凭证已选择',
+            icon: 'none'
+          })
+        },
+        fail: () => {
+          this.voucherName = '对公转账凭证.pdf'
+          uni.showToast({
+            title: '当前环境使用示例凭证',
             icon: 'none'
           })
         }
       })
     },
 
+    handlePayAction() {
+      if (!this.selectedPlan) {
+        return
+      }
+
+      if (this.selectedPayMethod === 'bank' && !this.voucherName) {
+        uni.showToast({
+          title: '请先上传转账凭证',
+          icon: 'none'
+        })
+        return
+      }
+
+      this.payStatus = this.selectedPayMethod === 'bank' ? 'pending' : 'success'
+      uni.showToast({
+        title: this.payStatus === 'success' ? '支付成功' : '凭证已提交',
+        icon: this.payStatus === 'success' ? 'success' : 'none'
+      })
+    },
+
     showContactToast() {
       uni.showToast({
-        title: '顾问联系入口待接入',
+        title: '顾问将尽快联系',
         icon: 'none'
       })
     }
@@ -283,7 +380,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 24rpx;
+  padding: 24rpx 24rpx calc(24rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 
@@ -483,21 +580,36 @@ export default {
   line-height: 38rpx;
 }
 
-.pay-box {
+.pay-methods {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
   margin-top: 22rpx;
-  padding: 24rpx;
-  border-radius: 24rpx;
-  background: #f8fafc;
-  border: 1rpx dashed #bfdbfe;
 }
 
-.pay-title {
+.pay-method,
+.bank-info,
+.pay-success,
+.pay-pending {
+  background: #f8fafc;
+  border: 1rpx solid #e5e7eb;
+  border-radius: 24rpx;
+  padding: 22rpx;
+}
+
+.pay-method.active {
+  background: #eff6ff;
+  border-color: #2563eb;
+}
+
+.pay-method-title,
+.bank-title {
   color: #111827;
   font-size: 27rpx;
   font-weight: 900;
 }
 
-.pay-desc,
+.pay-method-desc,
 .rule-item {
   margin-top: 10rpx;
   color: #64748b;
@@ -505,7 +617,70 @@ export default {
   line-height: 38rpx;
 }
 
+.bank-info {
+  margin-top: 18rpx;
+  border-style: dashed;
+  border-color: #bfdbfe;
+}
+
+.bank-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 18rpx;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #eef2f7;
+  color: #64748b;
+  font-size: 24rpx;
+}
+
+.bank-row text:last-child {
+  color: #111827;
+  font-weight: 900;
+  text-align: right;
+}
+
 .voucher-btn {
   margin-top: 18rpx;
+}
+
+.voucher-tip {
+  margin-top: 14rpx;
+  color: #2563eb;
+  font-size: 24rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pay-action {
+  height: 86rpx;
+  line-height: 86rpx;
+  margin-top: 22rpx;
+  border-radius: 24rpx;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 28rpx;
+  font-weight: 900;
+  text-align: center;
+}
+
+.pay-success,
+.pay-pending {
+  margin-top: 18rpx;
+  font-size: 25rpx;
+  line-height: 38rpx;
+  font-weight: 800;
+}
+
+.pay-success {
+  background: #ecfdf5;
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+
+.pay-pending {
+  background: #fff7ed;
+  border-color: #fed7aa;
+  color: #c76a16;
 }
 </style>

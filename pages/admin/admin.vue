@@ -230,6 +230,16 @@
               <view class="picker-input">{{ paidSource }}</view>
             </picker>
           </view>
+          <view class="two-cols">
+            <view>
+              <view class="label">开始日期</view>
+              <input class="input" v-model="paidStartDate" placeholder="2026-06-01" />
+            </view>
+            <view>
+              <view class="label">结束日期</view>
+              <input class="input" v-model="paidEndDate" placeholder="2026-06-30" />
+            </view>
+          </view>
         </view>
 
         <view
@@ -300,6 +310,92 @@
         </view>
       </block>
     </scroll-view>
+
+    <view v-if="detailPanel.visible" class="panel-mask" @tap="closeDetailPanel">
+      <view class="detail-panel" @tap.stop>
+        <view class="panel-head">
+          <view class="panel-title">{{ detailPanel.title }}</view>
+          <view class="close-btn" @tap="closeDetailPanel">×</view>
+        </view>
+
+        <block v-if="detailPanel.type === 'ticket'">
+          <view class="panel-section">
+            <view class="section-title">咨询内容</view>
+            <view class="kv"><text>商品资料</text><text>{{ detailPanel.item.product }}</text></view>
+            <view class="kv"><text>问题说明</text><text>{{ detailPanel.item.question }}</text></view>
+            <view class="kv"><text>回访信息</text><text>{{ detailPanel.item.callback }}</text></view>
+          </view>
+          <view class="file-tags">
+            <text v-for="file in detailPanel.item.files" :key="file" class="file-tag">{{ file }}</text>
+          </view>
+          <view class="form-item">
+            <view class="label">处理备注</view>
+            <textarea class="textarea" v-model="detailPanel.note" placeholder="填写回访情况、处理结果或需补充资料"></textarea>
+          </view>
+          <view class="panel-actions">
+            <view class="primary-btn compact" @tap="markTicketStatus('已回访')">标记已回访</view>
+            <view class="finish-btn" @tap="markTicketStatus('已结束')">标记已结束</view>
+          </view>
+        </block>
+
+        <block v-else-if="detailPanel.type === 'bank'">
+          <view class="panel-section">
+            <view class="section-title">订单信息</view>
+            <view class="kv"><text>购买内容</text><text>{{ detailPanel.item.product }}</text></view>
+            <view class="kv"><text>订单金额</text><text>{{ detailPanel.item.amount }}</text></view>
+            <view class="kv"><text>订单号</text><text>{{ detailPanel.item.orderNo }}</text></view>
+          </view>
+          <view class="panel-section">
+            <view class="section-title">账户信息</view>
+            <view class="kv"><text>{{ detailPanel.item.extraLabel }}</text><text>{{ detailPanel.item.extraValue }}</text></view>
+            <view class="kv"><text>收款户名</text><text>某某科技有限公司</text></view>
+            <view class="kv"><text>收款账号</text><text>1100 1234 5678 9012 345</text></view>
+          </view>
+          <view class="material-row">
+            <view>
+              <view class="item-name">转账凭证</view>
+              <view class="item-sub">用户提交的对公转账凭证</view>
+            </view>
+            <view class="light-btn" @tap="showToast('附件文件准备中')">下载</view>
+          </view>
+          <view class="form-item">
+            <view class="label">核对备注</view>
+            <textarea class="textarea" v-model="detailPanel.note" placeholder="填写到账时间、核对说明或驳回原因"></textarea>
+          </view>
+          <view v-if="detailPanel.item.status === '待核对'" class="panel-actions">
+            <view class="primary-btn compact" @tap="markBankOrder('已到账')">确认到账</view>
+            <view class="reject-btn" @tap="markBankOrder('已驳回')">驳回</view>
+          </view>
+          <view v-else class="empty-tip small">该记录已处理，可查看核对结果。</view>
+        </block>
+
+        <block v-else-if="detailPanel.type === 'paid'">
+          <view class="panel-section">
+            <view class="section-title">收款详情</view>
+            <view class="kv"><text>客户</text><text>{{ detailPanel.item.company }}</text></view>
+            <view class="kv"><text>联系人</text><text>{{ detailPanel.item.contact }}｜{{ detailPanel.item.phone }}</text></view>
+            <view class="kv"><text>购买内容</text><text>{{ detailPanel.item.product }}</text></view>
+            <view class="kv"><text>收款金额</text><text class="money">{{ detailPanel.item.amount }}元</text></view>
+            <view class="kv"><text>来源</text><text>{{ detailPanel.item.source }}</text></view>
+            <view class="kv"><text>{{ detailPanel.item.source === '介绍人推荐' ? '介绍人' : '来源说明' }}</text><text>{{ detailPanel.item.referrer }}</text></view>
+          </view>
+        </block>
+
+        <block v-else>
+          <view class="panel-section">
+            <view class="section-title">推荐用户</view>
+            <view
+              v-for="row in detailPanel.item.rows"
+              :key="row.label"
+              class="kv"
+            >
+              <text>{{ row.label }}</text>
+              <text>{{ row.value }}</text>
+            </view>
+          </view>
+        </block>
+      </view>
+    </view>
   </view>
 </template>
 
@@ -523,6 +619,8 @@ export default {
       ],
       paidSearch: '',
       paidSource: '全部来源',
+      paidStartDate: '',
+      paidEndDate: '',
       paidSourceOptions: ['全部来源', '介绍人推荐', '自然注册'],
       paidOrders: [
         {
@@ -570,6 +668,13 @@ export default {
           amount: 299
         }
       ],
+      detailPanel: {
+        visible: false,
+        type: '',
+        title: '',
+        item: null,
+        note: ''
+      },
       inviteCode: 'YQ-8888-A7',
       inviteUsers: [
         { id: 'invite_1', name: '赵六', status: '已购买', company: '广州跨境电商公司', phone: '136****3333', registerTime: '2026-06-20', product: '标准版会员', amount: '999元' },
@@ -642,7 +747,9 @@ export default {
       return this.paidOrders.filter((item) => {
         const sourceMatched = this.paidSource === '全部来源' || item.source === this.paidSource
         const keywordMatched = !keyword || `${item.company}${item.contact}${item.phone}`.includes(keyword)
-        return sourceMatched && keywordMatched
+        const startMatched = !this.paidStartDate || item.date >= this.paidStartDate
+        const endMatched = !this.paidEndDate || item.date <= this.paidEndDate
+        return sourceMatched && keywordMatched && startMatched && endMatched
       })
     },
 
@@ -716,50 +823,65 @@ export default {
     },
 
     openInviteDetail(person) {
-      uni.showModal({
-        title: '推荐用户',
-        content: `${person.name}\n${person.rows.map(row => row.value).join('\n')}`,
-        showCancel: false
-      })
+      this.openDetailPanel('invite', '推荐用户', person)
     },
 
     showRoleExplain() {
       uni.showModal({
         title: '权限说明',
-        content: '当前为前端Mock。后续由后端根据用户角色返回可见菜单和可执行操作。',
+        content: '不同角色登录后会展示对应的菜单范围和可执行操作，管理员可在此统一维护。',
         showCancel: false
       })
     },
 
     showTicketDetail(ticket) {
-      uni.showModal({
-        title: ticket.title,
-        content: `${ticket.product}\n${ticket.question}\n${ticket.callback}`,
-        showCancel: false
-      })
+      this.openDetailPanel('ticket', ticket.title, ticket, '待回访确认，需记录处理结果。')
     },
 
     showBankDetail(order) {
-      uni.showModal({
-        title: '对公核对',
-        content: `${order.company}\n${order.product}\n${order.amount}\n${order.extraLabel}：${order.extraValue}`,
-        confirmText: order.status === '待核对' ? '标记到账' : '知道了',
-        success: (res) => {
-          if (res.confirm && order.status === '待核对') {
-            order.status = '已到账'
-            order.statusClass = 'gray'
-            this.showToast('已标记到账')
-          }
-        }
-      })
+      this.openDetailPanel('bank', '对公核对', order, '请核对付款户名、金额和订单金额是否一致。')
     },
 
     showPaidDetail(paid) {
-      uni.showModal({
-        title: '收款详情',
-        content: `${paid.company}\n${paid.product}\n收款金额：${paid.amount}元\n来源：${paid.source}`,
-        showCancel: false
-      })
+      this.openDetailPanel('paid', '收款详情', paid)
+    },
+
+    openDetailPanel(type, title, item, note = '') {
+      this.detailPanel = {
+        visible: true,
+        type,
+        title,
+        item,
+        note
+      }
+    },
+
+    closeDetailPanel() {
+      this.detailPanel.visible = false
+    },
+
+    markTicketStatus(status) {
+      if (!this.detailPanel.item) {
+        return
+      }
+
+      this.detailPanel.item.status = status
+      this.detailPanel.item.statusClass = status === '已回访' ? 'blue' : 'gray'
+      this.closeDetailPanel()
+      this.showToast(status === '已回访' ? '已标记为已回访' : '已标记为已结束')
+    },
+
+    markBankOrder(status) {
+      if (!this.detailPanel.item) {
+        return
+      }
+
+      this.detailPanel.item.status = status
+      this.detailPanel.item.statusClass = status === '已到账' ? 'gray' : 'red'
+      this.detailPanel.item.extraLabel = status === '已到账' ? '到账时间' : '驳回原因'
+      this.detailPanel.item.extraValue = status === '已到账' ? '刚刚确认到账' : (this.detailPanel.note || '凭证信息需重新核对')
+      this.closeDetailPanel()
+      this.showToast(status === '已到账' ? '已确认到账，权益待发放' : '已驳回该转账记录')
     },
 
     copyInviteCode() {
@@ -824,7 +946,7 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 24rpx;
+  padding: 24rpx 24rpx calc(24rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 
@@ -1196,5 +1318,111 @@ export default {
   font-size: 26rpx;
   font-weight: 900;
   white-space: nowrap;
+}
+
+.panel-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 80;
+  background: rgba(15, 23, 42, 0.42);
+  display: flex;
+  align-items: flex-end;
+}
+
+.detail-panel {
+  width: 100%;
+  max-height: 78vh;
+  overflow-y: auto;
+  padding: 30rpx 30rpx calc(30rpx + env(safe-area-inset-bottom));
+  border-radius: 30rpx 30rpx 0 0;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.panel-title {
+  color: #111827;
+  font-size: 32rpx;
+  font-weight: 900;
+}
+
+.close-btn {
+  color: #64748b;
+  font-size: 44rpx;
+  line-height: 1;
+}
+
+.panel-section {
+  margin-bottom: 20rpx;
+}
+
+.textarea {
+  width: 100%;
+  height: 180rpx;
+  padding: 18rpx 22rpx;
+  border-radius: 22rpx;
+  background: #f8fafc;
+  border: 1rpx solid #e5e7eb;
+  color: #172033;
+  font-size: 25rpx;
+  line-height: 38rpx;
+  box-sizing: border-box;
+}
+
+.panel-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+  margin-top: 24rpx;
+}
+
+.primary-btn.compact,
+.finish-btn,
+.reject-btn {
+  height: 78rpx;
+  line-height: 78rpx;
+  border-radius: 22rpx;
+  color: #ffffff;
+  font-size: 26rpx;
+  font-weight: 900;
+  text-align: center;
+}
+
+.primary-btn.compact {
+  margin-top: 0;
+}
+
+.finish-btn {
+  background: #16a34a;
+}
+
+.reject-btn {
+  background: #e11d48;
+}
+
+.material-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18rpx;
+  padding: 22rpx;
+  border-radius: 24rpx;
+  background: #f8fafc;
+  border: 1rpx solid #e5e7eb;
+  margin-bottom: 20rpx;
+}
+
+.empty-tip.small {
+  padding: 28rpx 20rpx;
 }
 </style>
