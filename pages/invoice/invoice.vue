@@ -96,7 +96,7 @@
       </view>
 
       <view class="tip-card">
-        发票申请提交后将进入财务审核，开票状态可在订单与发票中查看。
+        发票申请提交后将进入信息审核，开票状态可在订单与发票中查看。
       </view>
 
       <view class="bottom-space"></view>
@@ -112,7 +112,7 @@ export default {
     return {
       form: {
         invoiceType: '电子普通发票',
-        title: '福建某进出口贸易有限公司',
+        title: '广东某进出口企业',
         taxNo: '',
         amount: '',
         email: '',
@@ -128,7 +128,15 @@ export default {
   },
 
   onLoad() {
-    this.invoices = getMockInvoices()
+    this.invoices = getMockInvoices().map(item => ({
+      id: item.id,
+      title: item.title,
+      invoiceType: item.type,
+      amount: String(item.amount).replace('元', ''),
+      status: item.status === '已开票' ? 'COMPLETED' : 'PENDING',
+      statusText: item.status,
+      createdAt: Date.parse(String(item.time).replace(/-/g, '/')) || Date.now()
+    }))
   },
 
   methods: {

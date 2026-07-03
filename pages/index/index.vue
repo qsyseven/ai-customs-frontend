@@ -270,11 +270,11 @@
         <view class="example-chip" @tap="useExample('商品是塑料水杯，PP材质，容量500ml，用于日常饮水。')">
           塑料水杯
         </view>
-        <view class="example-chip" @tap="useExample('不锈钢保温杯，容量500ml，用于盛装饮品，带塑料杯盖。')">
-          不锈钢保温杯
+        <view class="example-chip" @tap="useExample('印刷油墨，含树脂、颜料、溶剂，用于纸张印刷。')">
+          印刷油墨
         </view>
-        <view class="example-chip" @tap="useExample('女式针织上衣，棉95%、氨纶5%，日常穿着用，零售包装。')">
-          女式针织上衣
+        <view class="example-chip" @tap="useExample('工业管道用电动控制阀，24V执行机构。')">
+          电动控制阀
         </view>
       </view>
 

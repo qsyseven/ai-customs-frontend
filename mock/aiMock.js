@@ -5,10 +5,10 @@ export function getAiWelcomeMessage() {
 export function getBasicFieldMock() {
   return {
     recognizedFields: [
-      { label: '商品名称', value: '不锈钢保温杯' },
-      { label: '商品描述', value: '不锈钢保温杯，容量500ml，带塑料杯盖' },
-      { label: '主要用途', value: '用于盛装饮品' },
-      { label: '材质/成分', value: '不锈钢、塑料杯盖' }
+      { label: '商品名称', value: '塑料水杯' },
+      { label: '商品描述', value: '塑料水杯，PP材质，容量500ml，用于日常饮水' },
+      { label: '主要用途', value: '日常饮水' },
+      { label: '材质/成分', value: 'PP材质' }
     ],
     pendingFields: [
       {
@@ -16,7 +16,7 @@ export function getBasicFieldMock() {
         label: '结构/组成',
         tip: '例如：杯身+内胆+杯盖、阀体+执行机构、主机+配件等',
         placeholder: '请输入结构/组成',
-        demo: '杯身+内胆+塑料杯盖'
+        demo: '杯身+杯盖'
       },
       {
         key: 'principle',
@@ -30,7 +30,7 @@ export function getBasicFieldMock() {
         label: '加工/报验状态',
         tip: '例如：成品、散装、零售包装、未组装等',
         placeholder: '请输入加工/报验状态',
-        demo: '成品，零售包装'
+        demo: '成品'
       },
       {
         key: 'isPart',
@@ -54,30 +54,30 @@ export function getHs4Mock() {
   return {
     candidates: [
       {
-        code: '9617',
-        name: '保温瓶和其他真空容器及其零件',
-        confidence: '较可能',
-        reason: '商品具有保温杯特征，通常需优先关注真空容器相关品目。'
-      },
-      {
-        code: '7323',
-        name: '钢铁制餐桌、厨房或其他家用器具',
-        confidence: '备选',
-        reason: '若实物并非真空保温结构，而仅为普通不锈钢饮具，可作为备选方向。'
-      },
-      {
         code: '3924',
         name: '塑料制餐具、厨房用具及其他家庭用具',
+        confidence: '较可能',
+        reason: '商品为PP塑料水杯，用于日常饮水，通常需优先关注塑料制餐具及厨房用具方向。'
+      },
+      {
+        code: '3926',
+        name: '其他塑料制品',
+        confidence: '备选',
+        reason: '若实物不属于餐具、厨房用具或家庭用具列名范围，可作为备选方向。'
+      },
+      {
+        code: '3923',
+        name: '塑料制包装用品及类似品',
         confidence: '低',
-        reason: '商品仅杯盖为塑料，主体材质不是塑料，通常不作为优先方向。'
+        reason: '仅在实物主要作为包装、运输或容器用品使用时才需关注，本案例信息不作为优先方向。'
       }
     ],
     basisRefs: [
       '《中华人民共和国进出口税则》相关章注、品目条文。',
-      '《进出口税则商品及品目注释》关于真空容器及金属家用器具的说明。',
+      '《进出口税则商品及品目注释》关于塑料制餐具、厨房用具及家庭用具的说明。',
       '《归类总规则》规则一：优先依据品目条文及类注、章注确定归类。'
     ],
-    declarationSearchText: '已根据 9617 方向检索规范申报目录，可能需要继续确认品牌、型号、材质、保温方式、容量等申报字段。'
+    declarationSearchText: '已检索《中华人民共和国海关进出口商品规范申报目录》3924项下要求。该门类除基础字段外，还可能涉及成分含量、品牌、规格型号等特殊申报字段。系统已将特殊字段追加到下方字段列表。'
   }
 }
 
@@ -92,25 +92,18 @@ export function getSpecialFieldMock() {
         demo: '无品牌'
       },
       {
+        key: 'materialRatio',
+        label: '成分含量',
+        tip: '例如：PP 100%、PP 90%+硅胶10%等',
+        placeholder: '请输入成分含量',
+        demo: 'PP 100%'
+      },
+      {
         key: 'model',
         label: '规格型号',
         tip: '例如：500ml、型号ABC-500等',
         placeholder: '请输入规格型号',
         demo: '500ml'
-      },
-      {
-        key: 'insulation',
-        label: '保温方式',
-        tip: '例如：真空保温、普通双层结构、不保温',
-        placeholder: '请输入保温方式',
-        demo: '真空保温'
-      },
-      {
-        key: 'materialRatio',
-        label: '材质/成分说明',
-        tip: '例如：不锈钢杯身，塑料杯盖',
-        placeholder: '请输入材质/成分说明',
-        demo: '不锈钢杯身，塑料杯盖'
       }
     ]
   }
@@ -119,71 +112,70 @@ export function getSpecialFieldMock() {
 export function getFinalResultMock() {
   return {
     fieldSummary: [
-      { label: '商品名称', value: '不锈钢保温杯' },
-      { label: '商品描述', value: '容量500ml，用于盛装饮品，带塑料杯盖' },
-      { label: '主要用途', value: '盛装饮品' },
-      { label: '材质/成分', value: '不锈钢杯身，塑料杯盖' },
-      { label: '结构/组成', value: '杯身+内胆+塑料杯盖' },
+      { label: '商品名称', value: '塑料水杯' },
+      { label: '商品描述', value: '容量500ml，用于日常饮水' },
+      { label: '主要用途', value: '日常饮水' },
+      { label: '材质/成分', value: 'PP材质' },
+      { label: '结构/组成', value: '杯身+杯盖' },
       { label: '工作原理', value: '不涉及' },
-      { label: '加工/报验状态', value: '成品，零售包装' },
+      { label: '加工/报验状态', value: '成品' },
       { label: '是否零件/附件', value: '否' },
       { label: '品牌', value: '无品牌' },
-      { label: '规格型号', value: '500ml' },
-      { label: '保温方式', value: '真空保温' }
+      { label: '成分含量', value: 'PP 100%' },
+      { label: '规格型号', value: '500ml' }
     ],
-    recommendedCode: '9617.00.xx',
-    recommendedName: '保温瓶及其他真空容器方向',
-    classificationSummary: '建议优先按 9617.00.xx 保温瓶及其他真空容器方向进一步复核。',
+    recommendedCode: '3924.10.xx',
+    recommendedName: '塑料制餐具及厨房用具方向',
+    classificationSummary: '建议优先按 3924.10.xx 塑料制餐具及厨房用具方向进一步复核；如实际用途不属于餐具/厨房用具，则转向 3924.90.xx 其他塑料制家庭用具方向对比。',
     featureSummary: [
-      '商品为不锈钢保温杯，容量500ml。',
-      '用途为盛装饮品，结构含杯身、内胆和塑料杯盖。',
-      '若实物确认为真空保温结构，应优先关注真空容器方向。'
+      '商品为塑料水杯，材质为 PP。',
+      '用途为日常饮水，容量500ml。',
+      '从商品名称、材质和用途看，具有塑料制餐具或厨房用具特征。'
     ],
     reasoningProcess: [
-      '首先按商品功能判断，该商品用于盛装饮品并具备保温用途。',
-      '其次按结构判断，若为真空保温杯，通常优先关注保温瓶和真空容器相关品目。',
-      '若经实物确认并非真空保温结构，则需回到钢铁制家用器具方向进行复核。'
+      '首先按商品材质判断，该商品为PP塑料制品。',
+      '其次按用途判断，该商品用于日常饮水，通常属于家庭或餐厨使用场景。',
+      '如实物更偏一般家庭用具而非餐具/厨房用具，则需在3924项下其他子目中复核。'
     ],
     basisRefs: [
-      '《中华人民共和国进出口税则》相关品目条文。',
-      '《进出口税则商品及品目注释》关于保温瓶、真空容器及金属家用器具的说明。',
+      '《中华人民共和国进出口税则》3924项下相关品目条文。',
+      '《中华人民共和国海关进出口商品规范申报目录》3924项下申报要素要求。',
       '《归类总规则》规则一。'
     ],
     candidates: [
       {
-        code: '9617.00.xx',
-        name: '保温瓶及其他真空容器方向',
-        compare: '适用于具备真空保温结构的保温杯，当前匹配度较高。'
+        code: '3924.10.xx',
+        name: '塑料制餐具及厨房用具方向',
+        compare: '适用于塑料制餐具及厨房用具方向，和“日常饮水水杯”匹配度较高。'
       },
       {
-        code: '7323.xx.xx',
-        name: '钢铁制餐桌、厨房或其他家用器具方向',
-        compare: '若商品只是普通不锈钢杯，不具备真空保温结构，可作为备选方向。'
+        code: '3924.90.xx',
+        name: '其他塑料制家庭用具方向',
+        compare: '适用于其他塑料制家庭用具方向，作为实物用途不落入餐具/厨房用具时的备选。'
       },
       {
-        code: '3924.xx.xx',
-        name: '塑料制家庭用具方向',
-        compare: '仅杯盖为塑料时一般不优先按塑料制品归类，除非主体材质或功能另有变化。'
+        code: '3926.90.xx',
+        name: '其他塑料制品方向',
+        compare: '若无法按3924列名归入时再进一步复核，当前不作为优先方向。'
       }
     ],
     riskTips: [
-      '需确认是否确为真空保温结构，普通双层杯和真空保温杯可能影响归类方向。',
-      '如带电子显示、温控、过滤等特殊结构，可能影响具体子目判断。',
-      '品牌、型号、容量、材质应与实物和单证保持一致。'
+      '需确认商品是否属于餐具/厨房用具使用场景。',
+      '如带过滤、保温、电子显示等特殊结构，可能影响具体子目判断。',
+      '品牌、规格型号、材质和容量应与实物和单证保持一致。'
     ],
     missingSuggestions: [
       '建议补充商品图片、包装标签、产品说明书。',
-      '建议确认内胆结构和是否抽真空。',
-      '建议确认是否带电子元件、滤芯或其他附加功能。'
+      '建议确认是否配杯盖、吸管、过滤组件或其他附件。',
+      '建议确认成分含量、品牌和规格型号。'
     ],
     declarationElements: [
-      { label: '品名', value: '不锈钢保温杯' },
-      { label: '用途', value: '盛装饮品' },
-      { label: '材质', value: '不锈钢杯身，塑料杯盖' },
+      { label: '品名', value: '塑料水杯' },
+      { label: '用途', value: '日常饮水' },
+      { label: '材质', value: 'PP' },
+      { label: '成分含量', value: 'PP 100%' },
       { label: '品牌', value: '无品牌' },
-      { label: '规格型号', value: '500ml' },
-      { label: '保温方式', value: '真空保温' }
+      { label: '规格型号', value: '500ml' }
     ]
   }
 }
-

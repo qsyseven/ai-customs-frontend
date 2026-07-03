@@ -21,7 +21,7 @@
       <view class="intro-card">
         <view class="intro-title">选择适合的服务套餐</view>
         <view class="intro-desc">
-          免费体验版 + 标准版会员 + 会员补充包 + 企业顾问版，覆盖试用、日常申报和复杂事项承接。
+          免费体验版 + 标准版会员 + 会员补充包 + 企业顾问版/复杂专项服务，覆盖从试用到日常申报再到复杂事项的全场景需求。
         </view>
       </view>
 
@@ -39,6 +39,13 @@
           @tap="activeTab = 'packs'"
         >
           会员补充包
+        </view>
+        <view
+          class="pricing-tab"
+          :class="{ active: activeTab === 'special' }"
+          @tap="activeTab = 'special'"
+        >
+          专项服务
         </view>
       </view>
 
@@ -79,7 +86,7 @@
               :class="{ disabled: plan.disabled }"
               @tap="selectPlan(plan)"
             >
-              {{ plan.disabled ? '已默认开通' : '立即开通' }}
+              {{ getPlanActionText(plan) }}
             </view>
           </view>
         </view>
@@ -93,7 +100,7 @@
         </view>
       </block>
 
-      <block v-else>
+      <block v-else-if="activeTab === 'packs'">
         <view
           v-for="pack in supplementPacks"
           :key="pack.id"
@@ -111,6 +118,31 @@
         </view>
       </block>
 
+      <block v-else>
+        <view class="special-card">
+          <view class="plan-name">复杂专项服务</view>
+          <view class="plan-fit">
+            适用于普通AI咨询、批量AI咨询、单次人工咨询无法覆盖的复杂、争议、高风险事项。根据商品数量、资料完整度、判断难度、交付形式、响应时效等因素另行报价。
+          </view>
+          <view class="special-list">
+            <view class="special-row"><view class="special-dot">1</view><view>商品结构复杂，需要结合说明书、图纸、检测报告、工艺资料等进行综合判断。</view></view>
+            <view class="special-row"><view class="special-dot">2</view><view>存在多个可能税号，且不同税号之间税率、监管条件或申报要求差异较大。</view></view>
+            <view class="special-row"><view class="special-dot">3</view><view>商品涉及历史申报风险，需要结合过往申报记录进行复核。</view></view>
+            <view class="special-row"><view class="special-dot">4</view><view>需要形成书面归类复核意见、内部合规说明或申报建议材料。</view></view>
+            <view class="special-row"><view class="special-dot">5</view><view>需要对大批量商品进行人工复核、清单整理、商品库建设或税号标准化处理。</view></view>
+            <view class="special-row"><view class="special-dot">6</view><view>需要预裁定材料准备、重点商品专项咨询或企业内部培训支持。</view></view>
+          </view>
+          <view class="primary-btn full" @tap="selectSpecialService">提交专项服务需求</view>
+        </view>
+
+        <view class="special-card">
+          <view class="plan-name">企业顾问版说明</view>
+          <view class="plan-fit">
+            企业顾问版不作为普通线上套餐重点展示，主要用于销售跟进、大客户服务和复杂专项服务承接。具体权益、服务范围、响应时效和交付内容根据合同约定执行。
+          </view>
+        </view>
+      </block>
+
       <view v-if="selectedPlan" class="order-card">
         <view class="order-title">确认订单</view>
         <view class="order-row">
@@ -119,7 +151,7 @@
         </view>
         <view class="order-row">
           <text>购买类型</text>
-          <text>{{ activeTab === 'member' ? '会员套餐' : '会员补充包' }}</text>
+          <text>{{ selectedPlanType }}</text>
         </view>
         <view class="order-row">
           <text>应付金额</text>
@@ -147,7 +179,10 @@
           </view>
           <view class="bank-row">
             <text>收款账号</text>
-            <text>1100 1234 5678 9012 345</text>
+            <view class="bank-account">
+              <text>1100 1234 5678 9012 345</text>
+              <text class="bank-copy" @tap.stop="copyBankAccount">复制</text>
+            </view>
           </view>
           <view class="bank-row">
             <text>开户银行</text>
@@ -218,6 +253,18 @@ export default {
     }
   },
 
+  computed: {
+    selectedPlanType() {
+      if (this.activeTab === 'member') {
+        return '会员套餐'
+      }
+      if (this.activeTab === 'special') {
+        return '顾问评估'
+      }
+      return '会员补充包'
+    }
+  },
+
   onLoad() {
     this.setNavMetrics()
   },
@@ -255,6 +302,35 @@ export default {
       this.payStatus = ''
       uni.showToast({
         title: '已生成订单',
+        icon: 'none'
+      })
+    },
+
+    getPlanActionText(plan) {
+      if (plan.disabled) {
+        return '已默认开通'
+      }
+      if (plan.id === 'standard_year') {
+        return '年付购买'
+      }
+      if (plan.id === 'standard_month') {
+        return '月付购买'
+      }
+      return '立即开通'
+    },
+
+    selectSpecialService() {
+      this.activeTab = 'special'
+      this.selectedPlan = {
+        id: 'special_service',
+        name: '复杂专项服务',
+        price: '另行报价'
+      }
+      this.selectedPayMethod = 'bank'
+      this.voucherName = ''
+      this.payStatus = ''
+      uni.showToast({
+        title: '已提交顾问评估需求',
         icon: 'none'
       })
     },
@@ -301,6 +377,27 @@ export default {
             icon: 'none'
           })
         }
+      })
+    },
+
+    copyBankAccount() {
+      const account = '1100 1234 5678 9012 345'
+      if (uni.setClipboardData) {
+        uni.setClipboardData({
+          data: account,
+          success: () => {
+            uni.showToast({
+              title: '账号已复制',
+              icon: 'none'
+            })
+          }
+        })
+        return
+      }
+
+      uni.showToast({
+        title: '账号已复制',
+        icon: 'none'
       })
     },
 
@@ -388,6 +485,7 @@ export default {
 .plan-card,
 .pack-card,
 .advisor-card,
+.special-card,
 .order-card,
 .rule-card {
   margin-bottom: 24rpx;
@@ -433,6 +531,10 @@ export default {
   font-size: 26rpx;
   font-weight: 900;
   text-align: center;
+}
+
+.special-card {
+  margin-bottom: 24rpx;
 }
 
 .pricing-tab.active {
@@ -637,6 +739,57 @@ export default {
   color: #111827;
   font-weight: 900;
   text-align: right;
+}
+
+.bank-account {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12rpx;
+  color: #111827;
+  font-weight: 900;
+  text-align: right;
+}
+
+.bank-copy {
+  height: 42rpx;
+  line-height: 42rpx;
+  padding: 0 16rpx;
+  border-radius: 999rpx;
+  background: #eff6ff;
+  border: 1rpx solid #bfdbfe;
+  color: #2563eb;
+  font-size: 22rpx;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.special-list {
+  margin-top: 22rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.special-row {
+  display: flex;
+  gap: 16rpx;
+  color: #334155;
+  font-size: 24rpx;
+  line-height: 38rpx;
+}
+
+.special-dot {
+  width: 42rpx;
+  height: 42rpx;
+  line-height: 42rpx;
+  border-radius: 999rpx;
+  background: #eff6ff;
+  color: #2563eb;
+  text-align: center;
+  font-size: 22rpx;
+  font-weight: 900;
+  flex: 0 0 42rpx;
 }
 
 .voucher-btn {

@@ -83,6 +83,17 @@
         </block>
 
         <block v-else>
+          <view class="invoice-summary">
+            <view class="invoice-summary-item">
+              <strong>{{ invoiceSummary.count }}</strong>
+              <span>累计开票</span>
+            </view>
+            <view class="invoice-summary-item">
+              <strong>{{ invoiceSummary.amount }}</strong>
+              <span>开票金额</span>
+            </view>
+          </view>
+
           <view
             v-for="invoice in invoices"
             :key="invoice.id"
@@ -113,16 +124,25 @@
 
             <view class="actions">
               <view
+                v-if="invoice.status === '已开票'"
+                class="secondary-btn"
+                @tap="viewInvoice(invoice)"
+              >
+                查看发票
+              </view>
+              <view
+                v-if="invoice.status === '已开票'"
+                class="primary-btn"
+                @tap="openSendInvoiceEmail(invoice)"
+              >
+                发送至邮箱
+              </view>
+              <view
+                v-else
                 class="secondary-btn"
                 @tap="openInvoiceProgress(invoice)"
               >
                 查看进度
-              </view>
-              <view
-                class="secondary-btn"
-                @tap="openSendInvoiceEmail(invoice)"
-              >
-                发送发票至邮箱
               </view>
             </view>
           </view>
@@ -170,7 +190,7 @@
           <view class="card-title">权益明细</view>
           <view class="rights-row">
             <text>AI咨询</text>
-            <text>100次/月</text>
+            <text>30次/月</text>
           </view>
           <view class="rights-row">
             <text>批量AI咨询</text>
@@ -180,6 +200,12 @@
             <text>人工咨询</text>
             <text>2次/月</text>
           </view>
+        </view>
+
+        <view class="help-card">
+          <view class="card-title">需要帮助</view>
+          <view class="card-meta">如对订单、权益发放或开票信息有疑问，可联系客服协助处理。</view>
+          <view class="secondary-btn help-action" @tap="contactService">联系客服</view>
         </view>
       </block>
 
@@ -379,23 +405,34 @@ export default {
         },
         {
           no: 2,
-          name: '财务审核',
-          desc: opened ? '发票信息已审核通过。' : '正在核对订单、抬头和税号信息。',
+          name: '信息审核',
+          desc: opened ? '信息审核通过。' : '正在核对订单、抬头和税号信息。',
           status: opened ? 'done' : 'active'
         },
         {
           no: 3,
-          name: '发票开具',
-          desc: opened ? '电子发票已开具。' : '审核通过后进入开票环节。',
+          name: '税务开票',
+          desc: opened ? '电子发票已开具。' : '预计1-3个工作日完成。',
           status: opened ? 'done' : 'pending'
         },
         {
           no: 4,
-          name: '发送邮箱',
-          desc: opened ? '可重新发送至指定邮箱。' : '开票后可发送到接收邮箱。',
+          name: '发票交付',
+          desc: opened ? '可发送至指定邮箱。' : '待完成。',
           status: opened ? 'active' : 'pending'
         }
       ]
+    },
+
+    invoiceSummary() {
+      const total = this.invoices.reduce((sum, invoice) => {
+        const amount = Number(String(invoice.amount).replace(/[^\d.]/g, '')) || 0
+        return sum + amount
+      }, 0)
+      return {
+        count: this.invoices.length,
+        amount: `${total}元`
+      }
     }
   },
 
@@ -455,6 +492,13 @@ export default {
       }
       this.emailSent = false
       this.pageMode = 'sendEmail'
+    },
+
+    viewInvoice(invoice) {
+      uni.showToast({
+        title: '查看发票',
+        icon: 'none'
+      })
     },
 
     changeInvoiceType(event) {
@@ -521,6 +565,13 @@ export default {
     showToast(title) {
       uni.showToast({
         title,
+        icon: 'none'
+      })
+    },
+
+    contactService() {
+      uni.showToast({
+        title: '客服将尽快联系',
         icon: 'none'
       })
     }
@@ -604,13 +655,44 @@ export default {
 
 .order-card,
 .tip-card,
-.success-card {
+.success-card,
+.help-card {
   margin-bottom: 24rpx;
   padding: 30rpx;
   border-radius: 30rpx;
   background: #ffffff;
   border: 1rpx solid #e5e7eb;
   box-shadow: 0 10rpx 28rpx rgba(15, 23, 42, 0.04);
+}
+
+.invoice-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18rpx;
+  margin-bottom: 24rpx;
+}
+
+.invoice-summary-item {
+  padding: 26rpx;
+  border-radius: 26rpx;
+  background: #ffffff;
+  border: 1rpx solid #e5e7eb;
+  box-shadow: 0 10rpx 28rpx rgba(15, 23, 42, 0.04);
+  text-align: center;
+}
+
+.invoice-summary-item strong {
+  display: block;
+  color: #2563eb;
+  font-size: 38rpx;
+  font-weight: 900;
+}
+
+.invoice-summary-item span {
+  display: block;
+  margin-top: 8rpx;
+  color: #64748b;
+  font-size: 24rpx;
 }
 
 .card-head {
@@ -673,6 +755,11 @@ export default {
   display: flex;
   justify-content: flex-end;
   gap: 16rpx;
+  margin-top: 22rpx;
+}
+
+.help-action {
+  display: inline-block;
   margin-top: 22rpx;
 }
 

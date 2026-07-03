@@ -23,9 +23,11 @@ export function getMockMemberPlans() {
       tag: '推荐',
       disabled: false,
       features: [
-        ['AI咨询', '100次/月'],
-        ['批量AI咨询', '10次/月，单次最多100个商品'],
+        ['AI咨询', '30次/月'],
+        ['批量AI咨询', '10次/月'],
+        ['批量单次上限', '100个商品'],
         ['人工咨询', '2次/月'],
+        ['账号数量', '3个'],
         ['权益发放', '按月发放，当月有效']
       ]
     },
@@ -38,10 +40,11 @@ export function getMockMemberPlans() {
       tag: '年付',
       disabled: false,
       features: [
-        ['AI咨询', '1200次/年，按月发放'],
-        ['批量AI咨询', '120次/年，按月发放'],
-        ['人工咨询', '24次/年，按月发放'],
-        ['子账号', '最多2个子账号共享权益']
+        ['AI咨询', '30次/月，按月发放'],
+        ['批量AI咨询', '10次/月，按月发放'],
+        ['批量单次上限', '100个商品'],
+        ['人工咨询', '2次/月，按月发放'],
+        ['账号数量', '3个']
       ]
     }
   ]
@@ -123,16 +126,26 @@ export function getMockInvoices() {
       amount: '999元',
       orderTitle: '标准版会员-月付',
       status: '已开票',
-      time: '2026-06-21 10:20',
+      time: '2026-06-21 10:05',
       email: 'finance@example.com'
     },
     {
       id: 'invoice_002',
+      type: '电子普通发票',
+      title: '广东某进出口企业',
+      amount: '99元',
+      orderTitle: 'AI咨询补充包',
+      status: '已开票',
+      time: '2026-06-19 11:20',
+      email: 'finance@example.com'
+    },
+    {
+      id: 'invoice_003',
       type: '增值税专用发票',
       title: '广东某进出口企业',
       amount: '199元',
       orderTitle: '批量AI咨询补充包',
-      status: '待审核',
+      status: '开票中',
       time: '2026-05-23 09:00',
       email: 'finance@example.com'
     }

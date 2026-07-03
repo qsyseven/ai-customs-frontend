@@ -1,15 +1,15 @@
 <template>
 	<view class="login-page">
 		<view class="login-logo">
-			<view class="login-logo-icon">AI</view>
+			<view class="login-logo-icon">🛃</view>
 			<view class="login-title">AI商品归类与规范申报</view>
 			<view class="login-subtitle">智能辅助 · 高效归类 · 精准申报</view>
 		</view>
 
 		<view class="login-form">
 			<view class="form-item">
-				<view class="form-label">账号名</view>
-				<input v-model="form.account" class="form-input" placeholder="请输入您的账号名" />
+				<view class="form-label">帐号名</view>
+				<input v-model="form.account" class="form-input" placeholder="请输入您的帐号名" />
 			</view>
 
 			<view class="form-item">
@@ -75,8 +75,8 @@
 					industry: '',
 					inviteCode: ''
 				},
-				provinceOptions: ['福建省', '广东省', '浙江省', '江苏省', '上海市', '北京市', '山东省'],
-				industryOptions: ['进出口企业', '外贸公司', '跨境电商', '报关服务机构', '制造企业', '其他']
+				provinceOptions: ['北京', '天津', '河北', '山西', '内蒙古', '辽宁', '吉林', '黑龙江', '上海', '江苏', '浙江', '安徽', '福建', '江西', '山东', '河南', '湖北', '湖南', '广东', '广西', '海南', '重庆', '四川', '贵州', '云南', '西藏', '陕西', '甘肃', '青海', '宁夏', '新疆'],
+				industryOptions: ['外贸/进出口', '制造业', '物流/货代', '报关行', '跨境电商', '电商零售', '食品/农产品', '化工/能源', '机械设备', '电子/电器', '纺织服装', '医药/医疗器械', '其他']
 			}
 		},
 
@@ -137,8 +137,8 @@
 			    const userInfo = {
 			      account: this.form.account,
 			      company: this.form.company,
-			      province: this.form.province || '福建省',
-			      industry: this.form.industry || '进出口企业',
+			      province: this.form.province || '福建',
+			      industry: this.form.industry || '外贸/进出口',
 			      inviteCode: this.form.inviteCode,
 			      loginTime: Date.now()
 			    }
